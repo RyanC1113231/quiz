@@ -1,0 +1,22 @@
+name: C/C++ Tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+
+jobs:
+  tests:
+    name: Local Tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+
+    - name: Build with Make
+      run: make -C c-cpp
+
+    - name: Test with CuTest
+      run: c-cpp/test_standard_calc.o

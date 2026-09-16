@@ -1,0 +1,83 @@
+name: Hidden Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: '<owner>/<repository>'
+        default: 'UBCSailbot/software-quiz'
+        required: true
+        type: string
+      cutest:
+        description: 'check to run cutest'
+        default: false
+        required: false
+        type: boolean
+      pytest:
+        description: 'check to run pytest'
+        default: false
+        required: false
+        type: boolean
+
+jobs:
+  cutest:
+    if: ${{ inputs.cutest }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout src repository
+      uses: actions/checkout@v4
+      with:
+        path: 'src'
+        repository: '${{ inputs.repository }}'
+        submodules: 'true'
+
+    - name: Checkout solutions repository
+      uses: actions/checkout@v4
+      with:
+        path: 'sol'
+        repository: 'UBCSailbot/software-quiz-sample-solution'
+        token: ${{ secrets.GH_TOKEN }}
+
+    - name: Copy solutions to src
+      run: cp sol/c-cpp/test_standard_calc.cpp src/c-cpp
+
+    - name: Build src with solutions with Make
+      run: make -C src/c-cpp
+
+    - name: Test src with solutions with CuTest
+      run: src/c-cpp/test_standard_calc.o > /dev/null 2>&1
+
+  pytest:
+    if: ${{ inputs.pytest }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout src repository
+      uses: actions/checkout@v4
+      with:
+        path: 'src'
+        repository: '${{ inputs.repository }}'
+        submodules: 'true'
+
+    - name: Checkout solutions repository
+      uses: actions/checkout@v4
+      with:
+        path: 'sol'
+        repository: 'UBCSailbot/software-quiz-sample-solution'
+        token: ${{ secrets.GH_TOKEN }}
+
+    - name: Copy solutions to src
+      run: cp sol/python/test_standard_calc.py src/python
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies with Pip
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+
+    - name: Test src with solutions with Pytest
+      run: |
+        pytest src > /dev/null 2>&1
