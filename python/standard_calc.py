@@ -42,4 +42,3 @@ def is_angle_between(bound_a, middle_angle, bound_b):
         return 0 <= offset <= sweep
     else:
         return sweep <= offset <= 0
-    

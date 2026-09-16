@@ -202,4 +202,3 @@ def test_between_argument_revolution_invariance(a, m, b):
     assert is_angle_between(a + 360, m, b) == expected
     assert is_angle_between(a, m + 360, b) == expected
     assert is_angle_between(a, m, b - 360) == expected
-    
